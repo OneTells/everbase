@@ -1,5 +1,5 @@
 from inspect import isclass
-from typing import Callable as Call, overload, Callable
+from typing import overload, Callable
 
 from asyncpg import Record, Connection
 from pydantic import BaseModel
@@ -54,7 +54,7 @@ class Database[T: BaseModel, Result]:
         query: Query,
         connection: Connection | DatabasePool,
         *,
-        model: type[T] | Call[[Record], Result] | None = None
+        model: type[T] | Callable[[Record], Result] | None = None
     ) -> list[Record | Result | T]:
         if isinstance(connection, DatabasePool):
             connection = connection.pool
@@ -108,7 +108,7 @@ class Database[T: BaseModel, Result]:
         query: Query,
         connection: Connection | DatabasePool,
         *,
-        model: type[T] | Call[[Record], Result] | None = None
+        model: type[T] | Callable[[Record], Result] | None = None
     ) -> Record | Result | T | None:
         if isinstance(connection, DatabasePool):
             connection = connection.pool

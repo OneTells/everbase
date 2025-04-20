@@ -54,10 +54,10 @@ class Insert[T: BaseModel, Result](Insert_):
         return await Database.fetch_one(super().returning(*cols), model=model, connection=connection)
 
 
-class Select[T: BaseModel, Result](Select_):
+class Select(Select_):
 
     @overload
-    async def fetch(
+    async def fetch[T: BaseModel, Result](
         self,
         connection: Connection | DatabasePool,
         *,
@@ -66,7 +66,7 @@ class Select[T: BaseModel, Result](Select_):
         ...
 
     @overload
-    async def fetch(
+    async def fetch[T: BaseModel, Result](
         self,
         connection: Connection | DatabasePool,
         *,
@@ -75,7 +75,7 @@ class Select[T: BaseModel, Result](Select_):
         ...
 
     @overload
-    async def fetch(
+    async def fetch[T: BaseModel, Result](
         self,
         connection: Connection | DatabasePool,
         *,
@@ -83,7 +83,7 @@ class Select[T: BaseModel, Result](Select_):
     ) -> list[Record]:
         ...
 
-    async def fetch(
+    async def fetch[T: BaseModel, Result](
         self,
         connection: Connection | DatabasePool,
         *,
@@ -92,7 +92,7 @@ class Select[T: BaseModel, Result](Select_):
         return await Database.fetch(self, model=model, connection=connection)
 
     @overload
-    async def fetch_one(
+    async def fetch_one[T: BaseModel, Result](
         self,
         connection: Connection | DatabasePool,
         *,
@@ -101,7 +101,7 @@ class Select[T: BaseModel, Result](Select_):
         ...
 
     @overload
-    async def fetch_one(
+    async def fetch_one[T: BaseModel, Result](
         self,
         connection: Connection | DatabasePool,
         *,
@@ -110,7 +110,7 @@ class Select[T: BaseModel, Result](Select_):
         ...
 
     @overload
-    async def fetch_one(
+    async def fetch_one[T: BaseModel, Result](
         self,
         connection: Connection | DatabasePool,
         *,
@@ -118,7 +118,7 @@ class Select[T: BaseModel, Result](Select_):
     ) -> Record | None:
         ...
 
-    async def fetch_one(
+    async def fetch_one[T: BaseModel, Result](
         self,
         connection: Connection | DatabasePool,
         *,
