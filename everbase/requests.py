@@ -10,7 +10,7 @@ from everbase.database import Database
 from everbase.pool import DatabasePool
 
 
-class Insert[T: BaseModel, Result](Insert_):
+class Insert(Insert_):
 
     async def execute(
         self,
@@ -19,7 +19,7 @@ class Insert[T: BaseModel, Result](Insert_):
         await Database.execute(self, connection=connection)
 
     @overload
-    async def returning(
+    async def returning[T: BaseModel, Result](
         self,
         connection: Connection | DatabasePool,
         *cols: Columns,
@@ -28,7 +28,7 @@ class Insert[T: BaseModel, Result](Insert_):
         ...
 
     @overload
-    async def returning(
+    async def returning[T: BaseModel, Result](
         self,
         connection: Connection | DatabasePool,
         *cols: Columns,
@@ -37,7 +37,7 @@ class Insert[T: BaseModel, Result](Insert_):
         ...
 
     @overload
-    async def returning(
+    async def returning[T: BaseModel, Result](
         self,
         connection: Connection | DatabasePool,
         *cols: Columns,
@@ -45,7 +45,7 @@ class Insert[T: BaseModel, Result](Insert_):
     ) -> Record | None:
         ...
 
-    async def returning(
+    async def returning[T: BaseModel, Result](
         self,
         connection: Connection | DatabasePool,
         *cols: Columns,

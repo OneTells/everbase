@@ -3,23 +3,21 @@ from typing import overload, Callable
 
 from asyncpg import Record, Connection
 from pydantic import BaseModel
-from sqlalchemy import Update as Update_, Select as Select_, Delete as Delete_
-from sqlalchemy.dialects.postgresql import Insert as Insert_
+from sqlalchemy import Update, Select, Delete
+from sqlalchemy.dialects.postgresql import Insert
 from sqlalchemy.sql.dml import ReturningInsert
 
 from everbase.compiler import compile_query
 from everbase.pool import DatabasePool
 
-type Query = Select_ | Update_ | Insert_ | Delete_ | ReturningInsert
 
-
-class Database[T: BaseModel, Result]:
+class Database:
 
     @classmethod
     @overload
-    async def fetch(
+    async def fetch[T: BaseModel, Result](
         cls,
-        query: Query,
+        query: Insert | ReturningInsert | Select | Update | Delete,
         connection: Connection | DatabasePool,
         *,
         model: type[T]
@@ -28,9 +26,9 @@ class Database[T: BaseModel, Result]:
 
     @classmethod
     @overload
-    async def fetch(
+    async def fetch[T: BaseModel, Result](
         cls,
-        query: Query,
+        query: Insert | ReturningInsert | Select | Update | Delete,
         connection: Connection | DatabasePool,
         *,
         model: Callable[[Record], Result]
@@ -39,9 +37,9 @@ class Database[T: BaseModel, Result]:
 
     @classmethod
     @overload
-    async def fetch(
+    async def fetch[T: BaseModel, Result](
         cls,
-        query: Query,
+        query: Insert | ReturningInsert | Select | Update | Delete,
         connection: Connection | DatabasePool,
         *,
         model: None = None
@@ -49,9 +47,9 @@ class Database[T: BaseModel, Result]:
         ...
 
     @classmethod
-    async def fetch(
+    async def fetch[T: BaseModel, Result](
         cls,
-        query: Query,
+        query: Insert | ReturningInsert | Select | Update | Delete,
         connection: Connection | DatabasePool,
         *,
         model: type[T] | Callable[[Record], Result] | None = None
@@ -71,9 +69,9 @@ class Database[T: BaseModel, Result]:
 
     @classmethod
     @overload
-    async def fetch_one(
+    async def fetch_one[T: BaseModel, Result](
         cls,
-        query: Query,
+        query: Insert | ReturningInsert | Select | Update | Delete,
         connection: Connection | DatabasePool,
         *,
         model: type[T]
@@ -82,9 +80,9 @@ class Database[T: BaseModel, Result]:
 
     @classmethod
     @overload
-    async def fetch_one(
+    async def fetch_one[T: BaseModel, Result](
         cls,
-        query: Query,
+        query: Insert | ReturningInsert | Select | Update | Delete,
         connection: Connection | DatabasePool,
         *,
         model: Callable[[Record], Result]
@@ -93,9 +91,9 @@ class Database[T: BaseModel, Result]:
 
     @classmethod
     @overload
-    async def fetch_one(
+    async def fetch_one[T: BaseModel, Result](
         cls,
-        query: Query,
+        query: Insert | ReturningInsert | Select | Update | Delete,
         connection: Connection | DatabasePool,
         *,
         model: None = None
@@ -103,9 +101,9 @@ class Database[T: BaseModel, Result]:
         ...
 
     @classmethod
-    async def fetch_one(
+    async def fetch_one[T: BaseModel, Result](
         cls,
-        query: Query,
+        query: Insert | ReturningInsert | Select | Update | Delete,
         connection: Connection | DatabasePool,
         *,
         model: type[T] | Callable[[Record], Result] | None = None
@@ -132,7 +130,7 @@ class Database[T: BaseModel, Result]:
     @classmethod
     async def execute(
         cls,
-        query: Query,
+        query: Insert | ReturningInsert | Select | Update | Delete,
         connection: Connection | DatabasePool
     ) -> None:
         if isinstance(connection, DatabasePool):
