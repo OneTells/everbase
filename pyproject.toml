@@ -8,15 +8,15 @@ description = "Библиотека для работы с базой данн
 requires-python = ">=3.12"
 dynamic = ["version"]
 dependencies = [
-    "pydantic==2.11.3",
-    "SQLAlchemy==2.0.40",
+    "asyncpg==0.30.0",
     "loguru==0.7.3",
     "orjson==3.10.16",
-    "asyncpg==0.30.0"
+    "pydantic==2.11.3",
+    "SQLAlchemy==2.0.40"
 ]
 
 [tool.setuptools.dynamic]
 version = { attr = "everbase.__version__" }
 
 [tool.setuptools.packages]
-find = {}
+find = { }
