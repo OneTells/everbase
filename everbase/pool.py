@@ -57,6 +57,9 @@ class DatabasePool:
         self.__pool: Pool | None = None
 
     async def connect(self) -> None:
+        if self.__pool is not None:
+            return
+
         self.__pool = await create_pool(
             self.__settings.dsn,
             min_size=self.__pool_size,
@@ -67,6 +70,9 @@ class DatabasePool:
         logger.debug(f'База данных {self.__settings.name} подключена')
 
     async def close(self) -> None:
+        if self.__pool.is_closing():
+            return
+
         await self.__pool.close()
         logger.debug(f'База данных {self.__settings.name} отключена')
 

@@ -4,7 +4,7 @@ from everbase.database import Database
 from everbase.pool import DatabasePool, DatabaseSettings
 from everbase.requests import Insert, Select, Update, Delete
 
-__version__ = "2.0.4"
+__version__ = "2.0.5"
 
 __all__ = (
     '__version__',
