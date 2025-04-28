@@ -1,22 +1,17 @@
+[tool.poetry]
+name = "everwork"
+description = "For working with database"
+version = "2.0.6"
+packages = [{ include = "everbase" }]
+
+[tool.poetry.dependencies]
+python = ">=3.12,<4.0"
+asyncpg = "~=0.30.0"
+loguru = "~=0.7.3"
+orjson = "~=3.10.16"
+pydantic = "~=2.11.3"
+SQLAlchemy = "~=2.0.40"
+
 [build-system]
-requires = ["setuptools"]
-build-backend = "setuptools.build_meta"
-
-[project]
-name = "everbase"
-description = "Библиотека для работы с базой данных"
-requires-python = ">=3.12"
-dynamic = ["version"]
-dependencies = [
-    "asyncpg~=0.30.0",
-    "loguru~=0.7.3",
-    "orjson~=3.10.16",
-    "pydantic~=2.11.3",
-    "SQLAlchemy~=2.0.40"
-]
-
-[tool.setuptools.dynamic]
-version = { attr = "everbase.__version__" }
-
-[tool.setuptools.packages]
-find = { }
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
