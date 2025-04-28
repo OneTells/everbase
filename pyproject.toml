@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "everwork"
+name = "everbase"
 description = "For working with database"
-version = "2.0.6"
+version = "2.0.7"
 packages = [{ include = "everbase" }]
 
 [tool.poetry.dependencies]
