@@ -1,4 +1,4 @@
-from typing import overload, Callable
+from typing import overload, Callable, override
 
 from asyncpg import Record, Connection
 from pydantic import BaseModel
@@ -45,6 +45,7 @@ class Insert(Insert_):
     ) -> Record | None:
         ...
 
+    @override
     async def returning[T: BaseModel, Result](
         self,
         connection: Connection | DatabasePool,
@@ -54,7 +55,7 @@ class Insert(Insert_):
         return await Database.fetch_one(super().returning(*cols), model=model, connection=connection)
 
 
-class Select(Select_):
+class Select[TP](Select_[tuple[TP]]):
 
     @overload
     async def fetch[T: BaseModel, Result](
@@ -83,6 +84,7 @@ class Select(Select_):
     ) -> list[Record]:
         ...
 
+    @override
     async def fetch[T: BaseModel, Result](
         self,
         connection: Connection | DatabasePool,
