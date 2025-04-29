@@ -1,4 +1,4 @@
-from typing import overload, Callable, override
+from typing import overload, Callable, override, Any
 
 from asyncpg import Record, Connection
 from pydantic import BaseModel
@@ -55,7 +55,10 @@ class Insert(Insert_):
         return await Database.fetch_one(super().returning(*cols), model=model, connection=connection)
 
 
-class Select[TP](Select_[tuple[TP]]):
+class Select[TP: Columns[Any]](Select_[tuple[TP]]):
+
+    def __init__(self, *entities: TP):
+        super().__init__(*entities)
 
     @overload
     async def fetch[T: BaseModel, Result](
