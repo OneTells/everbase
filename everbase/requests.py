@@ -1,10 +1,10 @@
-from typing import overload, Callable, override, Any
+from typing import overload, Callable, override, Self, Any
 
 from asyncpg import Record, Connection
 from pydantic import BaseModel
 from sqlalchemy import Update as Update_, Select as Select_, Delete as Delete_
 from sqlalchemy.dialects.postgresql import Insert as Insert_
-from sqlalchemy.sql._typing import _ColumnsClauseArgument as Columns
+from sqlalchemy.sql._typing import _ColumnsClauseArgument as Columns, _ColumnExpressionArgument
 
 from everbase.database import Database
 from everbase.pool import DatabasePool
@@ -61,7 +61,7 @@ class Select[TP: Columns[Any]](Select_[tuple[TP]]):
         super().__init__(*entities)
 
     @overload
-    async def fetch[T: BaseModel, Result](
+    async def fetch[T: BaseModel](
         self,
         connection: Connection | DatabasePool,
         *,
@@ -70,7 +70,7 @@ class Select[TP: Columns[Any]](Select_[tuple[TP]]):
         ...
 
     @overload
-    async def fetch[T: BaseModel, Result](
+    async def fetch[Result](
         self,
         connection: Connection | DatabasePool,
         *,
@@ -79,7 +79,7 @@ class Select[TP: Columns[Any]](Select_[tuple[TP]]):
         ...
 
     @overload
-    async def fetch[T: BaseModel, Result](
+    async def fetch(
         self,
         connection: Connection | DatabasePool,
         *,
@@ -97,7 +97,7 @@ class Select[TP: Columns[Any]](Select_[tuple[TP]]):
         return await Database.fetch(self, model=model, connection=connection)
 
     @overload
-    async def fetch_one[T: BaseModel, Result](
+    async def fetch_one[T: BaseModel](
         self,
         connection: Connection | DatabasePool,
         *,
@@ -106,7 +106,7 @@ class Select[TP: Columns[Any]](Select_[tuple[TP]]):
         ...
 
     @overload
-    async def fetch_one[T: BaseModel, Result](
+    async def fetch_one[Result](
         self,
         connection: Connection | DatabasePool,
         *,
@@ -115,7 +115,7 @@ class Select[TP: Columns[Any]](Select_[tuple[TP]]):
         ...
 
     @overload
-    async def fetch_one[T: BaseModel, Result](
+    async def fetch_one(
         self,
         connection: Connection | DatabasePool,
         *,
@@ -130,6 +130,12 @@ class Select[TP: Columns[Any]](Select_[tuple[TP]]):
         model: type[T] | Callable[[Record], Result] | None = None
     ) -> Record | Result | T | None:
         return await Database.fetch_one(self, model=model, connection=connection)
+
+    def where(self, *whereclause: _ColumnExpressionArgument[bool] | bool) -> Self:
+        return super().where(*whereclause)
+
+    def having(self, *having: _ColumnExpressionArgument[bool] | bool) -> Self:
+        return super().having(*having)
 
 
 class Update(Update_):
