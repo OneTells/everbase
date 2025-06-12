@@ -3,6 +3,8 @@ from typing import overload, Callable, Self, Any, override, Union, Sequence, TYP
 from asyncpg import Record, Connection
 from pydantic import BaseModel
 from sqlalchemy import Update as Update_, Select as Select_, Delete as Delete_
+from sqlalchemy.dialects._typing import _OnConflictConstraintT, _OnConflictIndexElementsT, _OnConflictIndexWhereT, \
+    _OnConflictSetT, _OnConflictWhereT
 from sqlalchemy.dialects.postgresql import Insert as Insert_
 from sqlalchemy.sql._typing import _ColumnsClauseArgument as Columns, _ColumnExpressionArgument, _ColumnsClauseArgument, \
     _FromClauseArgument, _DMLColumnKeyMapping, _ColumnExpressionOrStrLabelArgument, _LimitOffsetType
@@ -59,6 +61,26 @@ class Insert(Insert_):
 
         @override
         def values(self, *args: Union[_DMLColumnKeyMapping[Any], Sequence[Any]], **kwargs: Any) -> Self:
+            ...
+
+        @override
+        def on_conflict_do_update(
+            self,
+            constraint: _OnConflictConstraintT = None,
+            index_elements: _OnConflictIndexElementsT = None,
+            index_where: _OnConflictIndexWhereT = None,
+            set_: _OnConflictSetT = None,
+            where: _OnConflictWhereT = None,
+        ) -> Self:
+            ...
+
+        @override
+        def on_conflict_do_nothing(
+            self,
+            constraint: _OnConflictConstraintT = None,
+            index_elements: _OnConflictIndexElementsT = None,
+            index_where: _OnConflictIndexWhereT = None,
+        ) -> Self:
             ...
 
 
