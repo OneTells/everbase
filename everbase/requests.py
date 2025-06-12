@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from sqlalchemy import Update as Update_, Select as Select_, Delete as Delete_
 from sqlalchemy.dialects.postgresql import Insert as Insert_
 from sqlalchemy.sql._typing import _ColumnsClauseArgument as Columns, _ColumnExpressionArgument, _ColumnsClauseArgument, \
-    _FromClauseArgument, _DMLColumnKeyMapping, _ColumnExpressionOrStrLabelArgument
+    _FromClauseArgument, _DMLColumnKeyMapping, _ColumnExpressionOrStrLabelArgument, _LimitOffsetType
 from sqlalchemy.sql.base import _NoArg
 from typing_extensions import Literal
 
@@ -159,6 +159,10 @@ class Select[TP: Columns[Any]](Select_[tuple[TP]]):
             ] = _NoArg.NO_ARG,
             *clauses: _ColumnExpressionOrStrLabelArgument[Any]
         ) -> Self:
+            ...
+
+        @override
+        def limit(self, limit: _LimitOffsetType) -> Self:
             ...
 
 
