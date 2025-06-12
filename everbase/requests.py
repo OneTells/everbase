@@ -1,4 +1,4 @@
-from typing import overload, Callable, override, Self, Any
+from typing import overload, Callable, Self, Any
 
 from asyncpg import Record, Connection
 from pydantic import BaseModel
@@ -19,40 +19,35 @@ class Insert(Insert_):
         await Database.execute(self, connection=connection)
 
     @overload
-    async def returning[T: BaseModel, Result](
+    async def fetch_all[T: BaseModel, Result](
         self,
         connection: Connection | DatabasePool,
-        *cols: Columns,
         model: type[T]
     ) -> list[T]:
         ...
 
     @overload
-    async def returning[T: BaseModel, Result](
+    async def fetch_all[T: BaseModel, Result](
         self,
         connection: Connection | DatabasePool,
-        *cols: Columns,
         model: Callable[[Record], Result]
     ) -> list[Result]:
         ...
 
     @overload
-    async def returning[T: BaseModel, Result](
+    async def fetch_all[T: BaseModel, Result](
         self,
         connection: Connection | DatabasePool,
-        *cols: Columns,
         model: None = None
     ) -> list[Record]:
         ...
 
-    @override
-    async def returning[T: BaseModel, Result](
+    async def fetch_all[T: BaseModel, Result](
         self,
         connection: Connection | DatabasePool,
-        *cols: Columns,
         model: type[T] | Callable[[Record], Result] | None = None
     ) -> list[Record | Result | T]:
-        return await Database.fetch(super().returning(*cols), model=model, connection=connection)
+        return await Database.fetch_all(self, model=model, connection=connection)
 
 
 class Select[TP: Columns[Any]](Select_[tuple[TP]]):
@@ -61,7 +56,7 @@ class Select[TP: Columns[Any]](Select_[tuple[TP]]):
         super().__init__(*entities)
 
     @overload
-    async def fetch[T: BaseModel](
+    async def fetch_all[T: BaseModel](
         self,
         connection: Connection | DatabasePool,
         *,
@@ -70,7 +65,7 @@ class Select[TP: Columns[Any]](Select_[tuple[TP]]):
         ...
 
     @overload
-    async def fetch[Result](
+    async def fetch_all[Result](
         self,
         connection: Connection | DatabasePool,
         *,
@@ -79,7 +74,7 @@ class Select[TP: Columns[Any]](Select_[tuple[TP]]):
         ...
 
     @overload
-    async def fetch(
+    async def fetch_all(
         self,
         connection: Connection | DatabasePool,
         *,
@@ -87,14 +82,13 @@ class Select[TP: Columns[Any]](Select_[tuple[TP]]):
     ) -> list[Record]:
         ...
 
-    @override
-    async def fetch[T: BaseModel, Result](
+    async def fetch_all[T: BaseModel, Result](
         self,
         connection: Connection | DatabasePool,
         *,
         model: type[T] | Callable[[Record], Result] | None = None
     ) -> list[Record | Result | T]:
-        return await Database.fetch(self, model=model, connection=connection)
+        return await Database.fetch_all(self, model=model, connection=connection)
 
     @overload
     async def fetch_one[T: BaseModel](
@@ -147,40 +141,35 @@ class Update(Update_):
         await Database.execute(self, connection=connection)
 
     @overload
-    async def returning[T: BaseModel, Result](
+    async def fetch_all[T: BaseModel, Result](
         self,
         connection: Connection | DatabasePool,
-        *cols: Columns,
         model: type[T]
     ) -> list[T]:
         ...
 
     @overload
-    async def returning[T: BaseModel, Result](
+    async def fetch_all[T: BaseModel, Result](
         self,
         connection: Connection | DatabasePool,
-        *cols: Columns,
         model: Callable[[Record], Result]
     ) -> list[Result]:
         ...
 
     @overload
-    async def returning[T: BaseModel, Result](
+    async def fetch_all[T: BaseModel, Result](
         self,
         connection: Connection | DatabasePool,
-        *cols: Columns,
         model: None = None
     ) -> list[Record]:
         ...
 
-    @override
-    async def returning[T: BaseModel, Result](
+    async def fetch_all[T: BaseModel, Result](
         self,
         connection: Connection | DatabasePool,
-        *cols: Columns,
         model: type[T] | Callable[[Record], Result] | None = None
     ) -> list[Record | Result | T]:
-        return await Database.fetch(super().returning(*cols), model=model, connection=connection)
+        return await Database.fetch_all(self, model=model, connection=connection)
 
 
 class Delete(Delete_):
@@ -192,37 +181,32 @@ class Delete(Delete_):
         await Database.execute(self, connection=connection)
 
     @overload
-    async def returning[T: BaseModel, Result](
+    async def fetch_all[T: BaseModel, Result](
         self,
         connection: Connection | DatabasePool,
-        *cols: Columns,
         model: type[T]
     ) -> list[T]:
         ...
 
     @overload
-    async def returning[T: BaseModel, Result](
+    async def fetch_all[T: BaseModel, Result](
         self,
         connection: Connection | DatabasePool,
-        *cols: Columns,
         model: Callable[[Record], Result]
     ) -> list[Result]:
         ...
 
     @overload
-    async def returning[T: BaseModel, Result](
+    async def fetch_all[T: BaseModel, Result](
         self,
         connection: Connection | DatabasePool,
-        *cols: Columns,
         model: None = None
     ) -> list[Record]:
         ...
 
-    @override
-    async def returning[T: BaseModel, Result](
+    async def fetch_all[T: BaseModel, Result](
         self,
         connection: Connection | DatabasePool,
-        *cols: Columns,
         model: type[T] | Callable[[Record], Result] | None = None
     ) -> list[Record | Result | T]:
-        return await Database.fetch(super().returning(*cols), model=model, connection=connection)
+        return await Database.fetch_all(self, model=model, connection=connection)

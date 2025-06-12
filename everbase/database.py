@@ -15,7 +15,7 @@ class Database:
 
     @classmethod
     @overload
-    async def fetch[T: BaseModel, Result](
+    async def fetch_all[T: BaseModel, Result](
         cls,
         query: Insert | ReturningInsert | Select | Update | Delete,
         connection: Connection | DatabasePool,
@@ -26,7 +26,7 @@ class Database:
 
     @classmethod
     @overload
-    async def fetch[T: BaseModel, Result](
+    async def fetch_all[T: BaseModel, Result](
         cls,
         query: Insert | ReturningInsert | Select | Update | Delete,
         connection: Connection | DatabasePool,
@@ -37,7 +37,7 @@ class Database:
 
     @classmethod
     @overload
-    async def fetch[T: BaseModel, Result](
+    async def fetch_all[T: BaseModel, Result](
         cls,
         query: Insert | ReturningInsert | Select | Update | Delete,
         connection: Connection | DatabasePool,
@@ -47,7 +47,7 @@ class Database:
         ...
 
     @classmethod
-    async def fetch[T: BaseModel, Result](
+    async def fetch_all[T: BaseModel, Result](
         cls,
         query: Insert | ReturningInsert | Select | Update | Delete,
         connection: Connection | DatabasePool,
