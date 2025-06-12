@@ -1,10 +1,10 @@
-from typing import overload, Callable, Self, Any
+from typing import overload, Callable, Self, Any, override
 
 from asyncpg import Record, Connection
 from pydantic import BaseModel
 from sqlalchemy import Update as Update_, Select as Select_, Delete as Delete_
 from sqlalchemy.dialects.postgresql import Insert as Insert_
-from sqlalchemy.sql._typing import _ColumnsClauseArgument as Columns, _ColumnExpressionArgument
+from sqlalchemy.sql._typing import _ColumnsClauseArgument as Columns, _ColumnExpressionArgument, _ColumnsClauseArgument
 
 from everbase.database import Database
 from everbase.pool import DatabasePool
@@ -48,6 +48,10 @@ class Insert(Insert_):
         model: type[T] | Callable[[Record], Result] | None = None
     ) -> list[Record | Result | T]:
         return await Database.fetch_all(self, model=model, connection=connection)
+
+    @override
+    def returning(self, *cols: _ColumnsClauseArgument[Any], sort_by_parameter_order: bool = False, **__kw: Any) -> Self:
+        ...
 
 
 class Select[TP: Columns[Any]](Select_[tuple[TP]]):
@@ -125,9 +129,11 @@ class Select[TP: Columns[Any]](Select_[tuple[TP]]):
     ) -> Record | Result | T | None:
         return await Database.fetch_one(self, model=model, connection=connection)
 
+    @override
     def where(self, *whereclause: _ColumnExpressionArgument[bool] | bool) -> Self:
         return super().where(*whereclause)
 
+    @override
     def having(self, *having: _ColumnExpressionArgument[bool] | bool) -> Self:
         return super().having(*having)
 
@@ -171,6 +177,10 @@ class Update(Update_):
     ) -> list[Record | Result | T]:
         return await Database.fetch_all(self, model=model, connection=connection)
 
+    @override
+    def returning(self, *cols: _ColumnsClauseArgument[Any], **__kw: Any) -> Self:
+        ...
+
 
 class Delete(Delete_):
 
@@ -210,3 +220,7 @@ class Delete(Delete_):
         model: type[T] | Callable[[Record], Result] | None = None
     ) -> list[Record | Result | T]:
         return await Database.fetch_all(self, model=model, connection=connection)
+
+    @override
+    def returning(self, *cols: _ColumnsClauseArgument[Any], **__kw: Any) -> Self:
+        ...
