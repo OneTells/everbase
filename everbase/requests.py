@@ -1,11 +1,13 @@
-from typing import overload, Callable, Self, Any, override, Union, Sequence
+from typing import overload, Callable, Self, Any, override, Union, Sequence, TYPE_CHECKING
 
 from asyncpg import Record, Connection
 from pydantic import BaseModel
 from sqlalchemy import Update as Update_, Select as Select_, Delete as Delete_
 from sqlalchemy.dialects.postgresql import Insert as Insert_
 from sqlalchemy.sql._typing import _ColumnsClauseArgument as Columns, _ColumnExpressionArgument, _ColumnsClauseArgument, \
-    _FromClauseArgument, _DMLColumnKeyMapping
+    _FromClauseArgument, _DMLColumnKeyMapping, _ColumnExpressionOrStrLabelArgument
+from sqlalchemy.sql.base import _NoArg
+from typing_extensions import Literal
 
 from everbase.database import Database
 from everbase.pool import DatabasePool
@@ -145,6 +147,18 @@ class Select[TP: Columns[Any]](Select_[tuple[TP]]):
     @override
     def having(self, *having: _ColumnExpressionArgument[bool] | bool) -> Self:
         return super().having(*having)
+
+    if TYPE_CHECKING:
+        @override
+        def order_by(
+            self,
+            __first: Union[
+                Literal[None, _NoArg.NO_ARG],
+                _ColumnExpressionOrStrLabelArgument[Any]
+            ] = _NoArg.NO_ARG,
+            *clauses: _ColumnExpressionOrStrLabelArgument[Any]
+        ) -> Self:
+            ...
 
 
 class Update(Update_):
