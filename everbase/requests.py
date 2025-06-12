@@ -1,11 +1,11 @@
-from typing import overload, Callable, Self, Any, override
+from typing import overload, Callable, Self, Any, override, Union, Sequence
 
 from asyncpg import Record, Connection
 from pydantic import BaseModel
 from sqlalchemy import Update as Update_, Select as Select_, Delete as Delete_
 from sqlalchemy.dialects.postgresql import Insert as Insert_
 from sqlalchemy.sql._typing import _ColumnsClauseArgument as Columns, _ColumnExpressionArgument, _ColumnsClauseArgument, \
-    _FromClauseArgument
+    _FromClauseArgument, _DMLColumnKeyMapping
 
 from everbase.database import Database
 from everbase.pool import DatabasePool
@@ -52,7 +52,11 @@ class Insert(Insert_):
 
     @override
     def returning(self, *cols: _ColumnsClauseArgument[Any], sort_by_parameter_order: bool = False, **__kw: Any) -> Self:
-        ...
+        return super().returning(*cols, **__kw)
+
+    @override
+    def values(self, *args: Union[_DMLColumnKeyMapping[Any], Sequence[Any]], **kwargs: Any) -> Self:
+        return super().values(*args, **kwargs)
 
 
 class Select[TP: Columns[Any]](Select_[tuple[TP]]):
@@ -184,7 +188,15 @@ class Update(Update_):
 
     @override
     def returning(self, *cols: _ColumnsClauseArgument[Any], **__kw: Any) -> Self:
-        ...
+        return super().returning(*cols, **__kw)
+
+    @override
+    def where(self, *whereclause: _ColumnExpressionArgument[bool] | bool) -> Self:
+        return super().where(*whereclause)
+
+    @override
+    def values(self, *args: Union[_DMLColumnKeyMapping[Any], Sequence[Any]], **kwargs: Any) -> Self:
+        return super().values(*args, **kwargs)
 
 
 class Delete(Delete_):
@@ -228,4 +240,8 @@ class Delete(Delete_):
 
     @override
     def returning(self, *cols: _ColumnsClauseArgument[Any], **__kw: Any) -> Self:
-        ...
+        return super().returning(*cols, **__kw)
+
+    @override
+    def where(self, *whereclause: _ColumnExpressionArgument[bool] | bool) -> Self:
+        return super().where(*whereclause)
