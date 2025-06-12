@@ -146,6 +146,42 @@ class Update(Update_):
     ) -> None:
         await Database.execute(self, connection=connection)
 
+    @overload
+    async def returning[T: BaseModel, Result](
+        self,
+        connection: Connection | DatabasePool,
+        *cols: Columns,
+        model: type[T]
+    ) -> T | None:
+        ...
+
+    @overload
+    async def returning[T: BaseModel, Result](
+        self,
+        connection: Connection | DatabasePool,
+        *cols: Columns,
+        model: Callable[[Record], Result]
+    ) -> Result | None:
+        ...
+
+    @overload
+    async def returning[T: BaseModel, Result](
+        self,
+        connection: Connection | DatabasePool,
+        *cols: Columns,
+        model: None = None
+    ) -> Record | None:
+        ...
+
+    @override
+    async def returning[T: BaseModel, Result](
+        self,
+        connection: Connection | DatabasePool,
+        *cols: Columns,
+        model: type[T] | Callable[[Record], Result] | None = None
+    ) -> Record | Result | T | None:
+        return await Database.fetch_one(super().returning(*cols), model=model, connection=connection)
+
 
 class Delete(Delete_):
 
@@ -154,3 +190,39 @@ class Delete(Delete_):
         connection: Connection | DatabasePool
     ) -> None:
         await Database.execute(self, connection=connection)
+
+    @overload
+    async def returning[T: BaseModel, Result](
+        self,
+        connection: Connection | DatabasePool,
+        *cols: Columns,
+        model: type[T]
+    ) -> T | None:
+        ...
+
+    @overload
+    async def returning[T: BaseModel, Result](
+        self,
+        connection: Connection | DatabasePool,
+        *cols: Columns,
+        model: Callable[[Record], Result]
+    ) -> Result | None:
+        ...
+
+    @overload
+    async def returning[T: BaseModel, Result](
+        self,
+        connection: Connection | DatabasePool,
+        *cols: Columns,
+        model: None = None
+    ) -> Record | None:
+        ...
+
+    @override
+    async def returning[T: BaseModel, Result](
+        self,
+        connection: Connection | DatabasePool,
+        *cols: Columns,
+        model: type[T] | Callable[[Record], Result] | None = None
+    ) -> Record | Result | T | None:
+        return await Database.fetch_one(super().returning(*cols), model=model, connection=connection)
