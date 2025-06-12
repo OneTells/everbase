@@ -52,13 +52,14 @@ class Insert(Insert_):
     ) -> list[Record | Result | T]:
         return await Database.fetch_all(self, model=model, connection=connection)
 
-    @override
-    def returning(self, *cols: _ColumnsClauseArgument[Any], sort_by_parameter_order: bool = False, **__kw: Any) -> Self:
-        return super().returning(*cols, **__kw)
+    if TYPE_CHECKING:
+        @override
+        def returning(self, *cols: _ColumnsClauseArgument[Any], sort_by_parameter_order: bool = False, **__kw: Any) -> Self:
+            ...
 
-    @override
-    def values(self, *args: Union[_DMLColumnKeyMapping[Any], Sequence[Any]], **kwargs: Any) -> Self:
-        return super().values(*args, **kwargs)
+        @override
+        def values(self, *args: Union[_DMLColumnKeyMapping[Any], Sequence[Any]], **kwargs: Any) -> Self:
+            ...
 
 
 class Select[TP: Columns[Any]](Select_[tuple[TP]]):
@@ -136,19 +137,19 @@ class Select[TP: Columns[Any]](Select_[tuple[TP]]):
     ) -> Record | Result | T | None:
         return await Database.fetch_one(self, model=model, connection=connection)
 
-    @override
-    def select_from(self, *froms: _FromClauseArgument) -> Self:
-        return super().select_from(*froms)
-
-    @override
-    def where(self, *whereclause: _ColumnExpressionArgument[bool] | bool) -> Self:
-        return super().where(*whereclause)
-
-    @override
-    def having(self, *having: _ColumnExpressionArgument[bool] | bool) -> Self:
-        return super().having(*having)
-
     if TYPE_CHECKING:
+        @override
+        def select_from(self, *froms: _FromClauseArgument) -> Self:
+            ...
+
+        @override
+        def where(self, *whereclause: _ColumnExpressionArgument[bool] | bool) -> Self:
+            ...
+
+        @override
+        def having(self, *having: _ColumnExpressionArgument[bool] | bool) -> Self:
+            ...
+
         @override
         def order_by(
             self,
@@ -200,17 +201,18 @@ class Update(Update_):
     ) -> list[Record | Result | T]:
         return await Database.fetch_all(self, model=model, connection=connection)
 
-    @override
-    def returning(self, *cols: _ColumnsClauseArgument[Any], **__kw: Any) -> Self:
-        return super().returning(*cols, **__kw)
+    if TYPE_CHECKING:
+        @override
+        def returning(self, *cols: _ColumnsClauseArgument[Any], **__kw: Any) -> Self:
+            ...
 
-    @override
-    def where(self, *whereclause: _ColumnExpressionArgument[bool] | bool) -> Self:
-        return super().where(*whereclause)
+        @override
+        def where(self, *whereclause: _ColumnExpressionArgument[bool] | bool) -> Self:
+            ...
 
-    @override
-    def values(self, *args: Union[_DMLColumnKeyMapping[Any], Sequence[Any]], **kwargs: Any) -> Self:
-        return super().values(*args, **kwargs)
+        @override
+        def values(self, *args: Union[_DMLColumnKeyMapping[Any], Sequence[Any]], **kwargs: Any) -> Self:
+            ...
 
 
 class Delete(Delete_):
@@ -252,10 +254,11 @@ class Delete(Delete_):
     ) -> list[Record | Result | T]:
         return await Database.fetch_all(self, model=model, connection=connection)
 
-    @override
-    def returning(self, *cols: _ColumnsClauseArgument[Any], **__kw: Any) -> Self:
-        return super().returning(*cols, **__kw)
+    if TYPE_CHECKING:
+        @override
+        def returning(self, *cols: _ColumnsClauseArgument[Any], **__kw: Any) -> Self:
+            ...
 
-    @override
-    def where(self, *whereclause: _ColumnExpressionArgument[bool] | bool) -> Self:
-        return super().where(*whereclause)
+        @override
+        def where(self, *whereclause: _ColumnExpressionArgument[bool] | bool) -> Self:
+            ...
