@@ -4,7 +4,8 @@ from asyncpg import Record, Connection
 from pydantic import BaseModel
 from sqlalchemy import Update as Update_, Select as Select_, Delete as Delete_
 from sqlalchemy.dialects.postgresql import Insert as Insert_
-from sqlalchemy.sql._typing import _ColumnsClauseArgument as Columns, _ColumnExpressionArgument, _ColumnsClauseArgument
+from sqlalchemy.sql._typing import _ColumnsClauseArgument as Columns, _ColumnExpressionArgument, _ColumnsClauseArgument, \
+    _FromClauseArgument
 
 from everbase.database import Database
 from everbase.pool import DatabasePool
@@ -128,6 +129,10 @@ class Select[TP: Columns[Any]](Select_[tuple[TP]]):
         model: type[T] | Callable[[Record], Result] | None = None
     ) -> Record | Result | T | None:
         return await Database.fetch_one(self, model=model, connection=connection)
+
+    @override
+    def select_from(self, *froms: _FromClauseArgument) -> Self:
+        return super().select_from(*froms)
 
     @override
     def where(self, *whereclause: _ColumnExpressionArgument[bool] | bool) -> Self:
