@@ -24,7 +24,7 @@ class Insert(Insert_):
         connection: Connection | DatabasePool,
         *cols: Columns,
         model: type[T]
-    ) -> T | None:
+    ) -> list[T]:
         ...
 
     @overload
@@ -33,7 +33,7 @@ class Insert(Insert_):
         connection: Connection | DatabasePool,
         *cols: Columns,
         model: Callable[[Record], Result]
-    ) -> Result | None:
+    ) -> list[Result]:
         ...
 
     @overload
@@ -42,7 +42,7 @@ class Insert(Insert_):
         connection: Connection | DatabasePool,
         *cols: Columns,
         model: None = None
-    ) -> Record | None:
+    ) -> list[Record]:
         ...
 
     @override
@@ -51,7 +51,7 @@ class Insert(Insert_):
         connection: Connection | DatabasePool,
         *cols: Columns,
         model: type[T] | Callable[[Record], Result] | None = None
-    ) -> Record | Result | T | None:
+    ) -> list[Record | Result | T]:
         return await Database.fetch(super().returning(*cols), model=model, connection=connection)
 
 
@@ -152,7 +152,7 @@ class Update(Update_):
         connection: Connection | DatabasePool,
         *cols: Columns,
         model: type[T]
-    ) -> T | None:
+    ) -> list[T]:
         ...
 
     @overload
@@ -161,7 +161,7 @@ class Update(Update_):
         connection: Connection | DatabasePool,
         *cols: Columns,
         model: Callable[[Record], Result]
-    ) -> Result | None:
+    ) -> list[Result]:
         ...
 
     @overload
@@ -170,7 +170,7 @@ class Update(Update_):
         connection: Connection | DatabasePool,
         *cols: Columns,
         model: None = None
-    ) -> Record | None:
+    ) -> list[Record]:
         ...
 
     @override
@@ -179,7 +179,7 @@ class Update(Update_):
         connection: Connection | DatabasePool,
         *cols: Columns,
         model: type[T] | Callable[[Record], Result] | None = None
-    ) -> Record | Result | T | None:
+    ) -> list[Record | Result | T]:
         return await Database.fetch(super().returning(*cols), model=model, connection=connection)
 
 
@@ -197,7 +197,7 @@ class Delete(Delete_):
         connection: Connection | DatabasePool,
         *cols: Columns,
         model: type[T]
-    ) -> T | None:
+    ) -> list[T]:
         ...
 
     @overload
@@ -206,7 +206,7 @@ class Delete(Delete_):
         connection: Connection | DatabasePool,
         *cols: Columns,
         model: Callable[[Record], Result]
-    ) -> Result | None:
+    ) -> list[Result]:
         ...
 
     @overload
@@ -215,7 +215,7 @@ class Delete(Delete_):
         connection: Connection | DatabasePool,
         *cols: Columns,
         model: None = None
-    ) -> Record | None:
+    ) -> list[Record]:
         ...
 
     @override
@@ -224,5 +224,5 @@ class Delete(Delete_):
         connection: Connection | DatabasePool,
         *cols: Columns,
         model: type[T] | Callable[[Record], Result] | None = None
-    ) -> Record | Result | T | None:
+    ) -> list[Record | Result | T]:
         return await Database.fetch(super().returning(*cols), model=model, connection=connection)
