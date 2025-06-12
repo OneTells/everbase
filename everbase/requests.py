@@ -52,7 +52,7 @@ class Insert(Insert_):
         *cols: Columns,
         model: type[T] | Callable[[Record], Result] | None = None
     ) -> Record | Result | T | None:
-        return await Database.fetch_one(super().returning(*cols), model=model, connection=connection)
+        return await Database.fetch(super().returning(*cols), model=model, connection=connection)
 
 
 class Select[TP: Columns[Any]](Select_[tuple[TP]]):
@@ -180,7 +180,7 @@ class Update(Update_):
         *cols: Columns,
         model: type[T] | Callable[[Record], Result] | None = None
     ) -> Record | Result | T | None:
-        return await Database.fetch_one(super().returning(*cols), model=model, connection=connection)
+        return await Database.fetch(super().returning(*cols), model=model, connection=connection)
 
 
 class Delete(Delete_):
@@ -225,4 +225,4 @@ class Delete(Delete_):
         *cols: Columns,
         model: type[T] | Callable[[Record], Result] | None = None
     ) -> Record | Result | T | None:
-        return await Database.fetch_one(super().returning(*cols), model=model, connection=connection)
+        return await Database.fetch(super().returning(*cols), model=model, connection=connection)
