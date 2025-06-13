@@ -1,6 +1,5 @@
 from asyncpg import Pool, create_pool, Connection as Connection_
 from asyncpg.pool import PoolAcquireContext
-from asyncpg.transaction import Transaction as Transaction_
 from loguru import logger
 from pydantic import BaseModel
 
@@ -14,25 +13,6 @@ class Connection:
         return await self.__pool_acquire_context.__aenter__()
 
     async def __aexit__(self, *exc) -> None:
-        await self.__pool_acquire_context.__aexit__(*exc)
-
-
-class Transaction:
-
-    def __init__(self, pool_acquire_context: PoolAcquireContext) -> None:
-        self.__pool_acquire_context = pool_acquire_context
-        self.__transaction: Transaction_ | None = None
-
-    async def __aenter__(self) -> Connection_:
-        connection = await self.__pool_acquire_context.__aenter__()
-
-        self.__transaction = connection.transaction()
-        await self.__transaction.__aenter__()
-
-        return connection
-
-    async def __aexit__(self, *exc) -> None:
-        await self.__transaction.__aexit__(*exc)
         await self.__pool_acquire_context.__aexit__(*exc)
 
 
@@ -80,8 +60,5 @@ class DatabasePool:
     def pool(self) -> Pool:
         return self.__pool
 
-    def get_transaction(self) -> Transaction:
-        return Transaction(self.__pool.acquire())
-
     def get_connection(self) -> Connection:
-        return Connection(self.__pool.acquire())
+        return Connection(self.__pool.acquire().connection)
