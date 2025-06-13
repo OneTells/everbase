@@ -187,6 +187,21 @@ class Select[TP: Columns[Any]](Select_[tuple[TP]]):
         def limit(self, limit: _LimitOffsetType) -> Self:
             ...
 
+        @override
+        def offset(self, offset: _LimitOffsetType) -> Self:
+            ...
+
+        @override
+        def group_by(
+            self,
+            __first: Union[
+                Literal[None, _NoArg.NO_ARG],
+                _ColumnExpressionOrStrLabelArgument[Any],
+            ] = _NoArg.NO_ARG,
+            *clauses: _ColumnExpressionOrStrLabelArgument[Any],
+        ) -> Self:
+            ...
+
 
 class Update(Update_):
 
