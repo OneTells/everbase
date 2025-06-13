@@ -1,4 +1,4 @@
-from typing import overload, Callable, Self, Any, override, Union, Sequence, TYPE_CHECKING
+from typing import overload, Callable, Self, Any, override, Union, Sequence, TYPE_CHECKING, Optional
 
 from asyncpg import Record, Connection
 from pydantic import BaseModel
@@ -7,7 +7,8 @@ from sqlalchemy.dialects._typing import _OnConflictConstraintT, _OnConflictIndex
     _OnConflictSetT, _OnConflictWhereT
 from sqlalchemy.dialects.postgresql import Insert as Insert_
 from sqlalchemy.sql._typing import _ColumnsClauseArgument as Columns, _ColumnExpressionArgument, _ColumnsClauseArgument, \
-    _FromClauseArgument, _DMLColumnKeyMapping, _ColumnExpressionOrStrLabelArgument, _LimitOffsetType
+    _FromClauseArgument, _DMLColumnKeyMapping, _ColumnExpressionOrStrLabelArgument, _LimitOffsetType, _JoinTargetArgument, \
+    _OnClauseArgument
 from sqlalchemy.sql.base import _NoArg
 from typing_extensions import Literal
 
@@ -199,6 +200,50 @@ class Select[TP: Columns[Any]](Select_[tuple[TP]]):
                 _ColumnExpressionOrStrLabelArgument[Any],
             ] = _NoArg.NO_ARG,
             *clauses: _ColumnExpressionOrStrLabelArgument[Any],
+        ) -> Self:
+            ...
+
+        @override
+        def join(
+            self,
+            target: _JoinTargetArgument,
+            onclause: Optional[_OnClauseArgument] = None,
+            *,
+            isouter: bool = False,
+            full: bool = False,
+        ) -> Self:
+            ...
+
+        @override
+        def outerjoin(
+            self,
+            target: _JoinTargetArgument,
+            onclause: Optional[_OnClauseArgument] = None,
+            *,
+            full: bool = False,
+        ) -> Self:
+            ...
+
+        @override
+        def join_from(
+            self,
+            from_: _FromClauseArgument,
+            target: _JoinTargetArgument,
+            onclause: Optional[_OnClauseArgument] = None,
+            *,
+            isouter: bool = False,
+            full: bool = False,
+        ) -> Self:
+            ...
+
+        @override
+        def outerjoin_from(
+            self,
+            from_: _FromClauseArgument,
+            target: _JoinTargetArgument,
+            onclause: Optional[_OnClauseArgument] = None,
+            *,
+            full: bool = False,
         ) -> Self:
             ...
 
