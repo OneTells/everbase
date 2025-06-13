@@ -55,6 +55,41 @@ class Insert(Insert_):
     ) -> list[Record | Result | T]:
         return await Database.fetch_all(self, model=model, connection=connection)
 
+    @overload
+    async def fetch_one[T: BaseModel](
+        self,
+        connection: Connection | DatabasePool,
+        *,
+        model: type[T]
+    ) -> T | None:
+        ...
+
+    @overload
+    async def fetch_one[Result](
+        self,
+        connection: Connection | DatabasePool,
+        *,
+        model: Callable[[Record], Result]
+    ) -> Result | None:
+        ...
+
+    @overload
+    async def fetch_one(
+        self,
+        connection: Connection | DatabasePool,
+        *,
+        model: None = None
+    ) -> Record | None:
+        ...
+
+    async def fetch_one[T: BaseModel, Result](
+        self,
+        connection: Connection | DatabasePool,
+        *,
+        model: type[T] | Callable[[Record], Result] | None = None
+    ) -> Record | Result | T | None:
+        return await Database.fetch_one(self, model=model, connection=connection)
+
     if TYPE_CHECKING:
         @override
         def returning(self, *cols: _ColumnsClauseArgument[Any], sort_by_parameter_order: bool = False, **__kw: Any) -> Self:
@@ -287,6 +322,41 @@ class Update(Update_):
     ) -> list[Record | Result | T]:
         return await Database.fetch_all(self, model=model, connection=connection)
 
+    @overload
+    async def fetch_one[T: BaseModel](
+        self,
+        connection: Connection | DatabasePool,
+        *,
+        model: type[T]
+    ) -> T | None:
+        ...
+
+    @overload
+    async def fetch_one[Result](
+        self,
+        connection: Connection | DatabasePool,
+        *,
+        model: Callable[[Record], Result]
+    ) -> Result | None:
+        ...
+
+    @overload
+    async def fetch_one(
+        self,
+        connection: Connection | DatabasePool,
+        *,
+        model: None = None
+    ) -> Record | None:
+        ...
+
+    async def fetch_one[T: BaseModel, Result](
+        self,
+        connection: Connection | DatabasePool,
+        *,
+        model: type[T] | Callable[[Record], Result] | None = None
+    ) -> Record | Result | T | None:
+        return await Database.fetch_one(self, model=model, connection=connection)
+
     if TYPE_CHECKING:
         @override
         def returning(self, *cols: _ColumnsClauseArgument[Any], **__kw: Any) -> Self:
@@ -339,6 +409,41 @@ class Delete(Delete_):
         model: type[T] | Callable[[Record], Result] | None = None
     ) -> list[Record | Result | T]:
         return await Database.fetch_all(self, model=model, connection=connection)
+
+    @overload
+    async def fetch_one[T: BaseModel](
+        self,
+        connection: Connection | DatabasePool,
+        *,
+        model: type[T]
+    ) -> T | None:
+        ...
+
+    @overload
+    async def fetch_one[Result](
+        self,
+        connection: Connection | DatabasePool,
+        *,
+        model: Callable[[Record], Result]
+    ) -> Result | None:
+        ...
+
+    @overload
+    async def fetch_one(
+        self,
+        connection: Connection | DatabasePool,
+        *,
+        model: None = None
+    ) -> Record | None:
+        ...
+
+    async def fetch_one[T: BaseModel, Result](
+        self,
+        connection: Connection | DatabasePool,
+        *,
+        model: type[T] | Callable[[Record], Result] | None = None
+    ) -> Record | Result | T | None:
+        return await Database.fetch_one(self, model=model, connection=connection)
 
     if TYPE_CHECKING:
         @override
