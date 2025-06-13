@@ -61,4 +61,4 @@ class DatabasePool:
         return self.__pool
 
     def get_connection(self) -> Connection:
-        return Connection(self.__pool.acquire().connection)
+        return Connection(self.__pool.acquire())
