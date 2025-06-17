@@ -1,19 +1,6 @@
-from asyncpg import Pool, create_pool, Connection as Connection_
+from asyncpg import Pool, create_pool
 from asyncpg.pool import PoolAcquireContext
-from loguru import logger
 from pydantic import BaseModel
-
-
-class Connection:
-
-    def __init__(self, pool_acquire_context: PoolAcquireContext) -> None:
-        self.__pool_acquire_context = pool_acquire_context
-
-    async def __aenter__(self) -> Connection_:
-        return await self.__pool_acquire_context.__aenter__()
-
-    async def __aexit__(self, *exc) -> None:
-        await self.__pool_acquire_context.__aexit__(*exc)
 
 
 class DatabaseSettings(BaseModel):
@@ -47,18 +34,16 @@ class DatabasePool:
             max_inactive_connection_lifetime=120,
             command_timeout=60
         )
-        logger.debug(f'База данных {self.__settings.name} подключена')
 
     async def close(self) -> None:
         if self.__pool.is_closing():
             return
 
         await self.__pool.close()
-        logger.debug(f'База данных {self.__settings.name} отключена')
 
     @property
     def pool(self) -> Pool:
         return self.__pool
 
-    def get_connection(self) -> Connection:
-        return Connection(self.__pool.acquire())
+    def get_connection(self) -> PoolAcquireContext:
+        return self.__pool.acquire()

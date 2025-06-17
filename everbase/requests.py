@@ -1,4 +1,4 @@
-from typing import overload, Callable, Self, Any, override, Union, Sequence, TYPE_CHECKING, Optional
+from typing import overload, Callable, Self, Any, override, Union, Sequence, TYPE_CHECKING, Optional, Iterable
 
 from asyncpg import Record, Connection
 from pydantic import BaseModel
@@ -8,8 +8,9 @@ from sqlalchemy.dialects._typing import _OnConflictConstraintT, _OnConflictIndex
 from sqlalchemy.dialects.postgresql import Insert as Insert_
 from sqlalchemy.sql._typing import _ColumnsClauseArgument as Columns, _ColumnExpressionArgument, _ColumnsClauseArgument, \
     _FromClauseArgument, _DMLColumnKeyMapping, _ColumnExpressionOrStrLabelArgument, _LimitOffsetType, _JoinTargetArgument, \
-    _OnClauseArgument
+    _OnClauseArgument, _DMLColumnArgument
 from sqlalchemy.sql.base import _NoArg
+from sqlalchemy.sql.selectable import _ForUpdateOfArgument
 from typing_extensions import Literal
 
 from everbase.database import Database
@@ -116,6 +117,15 @@ class Insert(Insert_):
             constraint: _OnConflictConstraintT = None,
             index_elements: _OnConflictIndexElementsT = None,
             index_where: _OnConflictIndexWhereT = None,
+        ) -> Self:
+            ...
+
+        @override
+        def return_defaults(
+            self,
+            *cols: _DMLColumnArgument,
+            supplemental_cols: Optional[Iterable[_DMLColumnArgument]] = None,
+            sort_by_parameter_order: bool = False,
         ) -> Self:
             ...
 
@@ -282,6 +292,22 @@ class Select[TP: Columns[Any]](Select_[tuple[TP]]):
         ) -> Self:
             ...
 
+        @override
+        def distinct(self, *expr: _ColumnExpressionArgument[Any]) -> Self:
+            ...
+
+        @override
+        def with_for_update(
+            self,
+            *,
+            nowait: bool = False,
+            read: bool = False,
+            of: Optional[_ForUpdateOfArgument] = None,
+            skip_locked: bool = False,
+            key_share: bool = False,
+        ) -> Self:
+            ...
+
 
 class Update(Update_):
 
@@ -370,6 +396,15 @@ class Update(Update_):
         def values(self, *args: Union[_DMLColumnKeyMapping[Any], Sequence[Any]], **kwargs: Any) -> Self:
             ...
 
+        @override
+        def return_defaults(
+            self,
+            *cols: _DMLColumnArgument,
+            supplemental_cols: Optional[Iterable[_DMLColumnArgument]] = None,
+            sort_by_parameter_order: bool = False,
+        ) -> Self:
+            ...
+
 
 class Delete(Delete_):
 
@@ -452,4 +487,13 @@ class Delete(Delete_):
 
         @override
         def where(self, *whereclause: _ColumnExpressionArgument[bool] | bool) -> Self:
+            ...
+
+        @override
+        def return_defaults(
+            self,
+            *cols: _DMLColumnArgument,
+            supplemental_cols: Optional[Iterable[_DMLColumnArgument]] = None,
+            sort_by_parameter_order: bool = False,
+        ) -> Self:
             ...
