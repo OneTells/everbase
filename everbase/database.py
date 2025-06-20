@@ -5,7 +5,6 @@ from asyncpg import Record, Connection
 from pydantic import BaseModel
 from sqlalchemy import Update, Select, Delete
 from sqlalchemy.dialects.postgresql import Insert
-from sqlalchemy.sql.dml import ReturningInsert
 
 from everbase.compiler import compile_query
 from everbase.pool import DatabasePool
@@ -17,7 +16,7 @@ class Database:
     @overload
     async def fetch_all[T: BaseModel, Result](
         cls,
-        query: Insert | ReturningInsert | Select | Update | Delete,
+        query: Insert | Select | Update | Delete,
         connection: Connection | DatabasePool,
         *,
         model: type[T]
@@ -28,7 +27,7 @@ class Database:
     @overload
     async def fetch_all[T: BaseModel, Result](
         cls,
-        query: Insert | ReturningInsert | Select | Update | Delete,
+        query: Insert | Select | Update | Delete,
         connection: Connection | DatabasePool,
         *,
         model: Callable[[Record], Result]
@@ -39,7 +38,7 @@ class Database:
     @overload
     async def fetch_all[T: BaseModel, Result](
         cls,
-        query: Insert | ReturningInsert | Select | Update | Delete,
+        query: Insert | Select | Update | Delete,
         connection: Connection | DatabasePool,
         *,
         model: None = None
@@ -49,7 +48,7 @@ class Database:
     @classmethod
     async def fetch_all[T: BaseModel, Result](
         cls,
-        query: Insert | ReturningInsert | Select | Update | Delete,
+        query: Insert | Select | Update | Delete,
         connection: Connection | DatabasePool,
         *,
         model: type[T] | Callable[[Record], Result] | None = None
@@ -71,7 +70,7 @@ class Database:
     @overload
     async def fetch_one[T: BaseModel, Result](
         cls,
-        query: Insert | ReturningInsert | Select | Update | Delete,
+        query: Insert | Select | Update | Delete,
         connection: Connection | DatabasePool,
         *,
         model: type[T]
@@ -82,7 +81,7 @@ class Database:
     @overload
     async def fetch_one[T: BaseModel, Result](
         cls,
-        query: Insert | ReturningInsert | Select | Update | Delete,
+        query: Insert | Select | Update | Delete,
         connection: Connection | DatabasePool,
         *,
         model: Callable[[Record], Result]
@@ -93,7 +92,7 @@ class Database:
     @overload
     async def fetch_one[T: BaseModel, Result](
         cls,
-        query: Insert | ReturningInsert | Select | Update | Delete,
+        query: Insert | Select | Update | Delete,
         connection: Connection | DatabasePool,
         *,
         model: None = None
@@ -103,7 +102,7 @@ class Database:
     @classmethod
     async def fetch_one[T: BaseModel, Result](
         cls,
-        query: Insert | ReturningInsert | Select | Update | Delete,
+        query: Insert | Select | Update | Delete,
         connection: Connection | DatabasePool,
         *,
         model: type[T] | Callable[[Record], Result] | None = None
@@ -130,7 +129,7 @@ class Database:
     @classmethod
     async def execute(
         cls,
-        query: Insert | ReturningInsert | Select | Update | Delete,
+        query: Insert | Select | Update | Delete,
         connection: Connection | DatabasePool
     ) -> None:
         if isinstance(connection, DatabasePool):
