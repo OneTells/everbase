@@ -52,6 +52,9 @@ class DatabasePool:
         )
 
     async def close(self) -> None:
+        if self.__pool is None:
+            return
+
         if self.__pool.is_closing():
             return
 
@@ -59,7 +62,13 @@ class DatabasePool:
 
     @property
     def pool(self) -> Pool:
+        if self.__pool is None:
+            raise ValueError('Pool is not connected')
+
         return self.__pool
 
     def get_connection(self) -> PoolAcquireContext:
+        if self.__pool is None:
+            raise ValueError('Pool is not connected')
+
         return self.__pool.acquire()

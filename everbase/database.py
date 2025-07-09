@@ -14,7 +14,7 @@ class Database:
 
     @classmethod
     @overload
-    async def fetch_all[T: BaseModel, Result](
+    async def fetch_all[T: BaseModel](
         cls,
         query: Insert | Select | Update | Delete,
         connection: Connection | DatabasePool,
@@ -25,7 +25,7 @@ class Database:
 
     @classmethod
     @overload
-    async def fetch_all[T: BaseModel, Result](
+    async def fetch_all[Result](
         cls,
         query: Insert | Select | Update | Delete,
         connection: Connection | DatabasePool,
@@ -36,7 +36,7 @@ class Database:
 
     @classmethod
     @overload
-    async def fetch_all[T: BaseModel, Result](
+    async def fetch_all(
         cls,
         query: Insert | Select | Update | Delete,
         connection: Connection | DatabasePool,
@@ -52,11 +52,13 @@ class Database:
         connection: Connection | DatabasePool,
         *,
         model: type[T] | Callable[[Record], Result] | None = None
-    ) -> list[Record | Result | T]:
+    ) -> list[Record] | list[Result] | list[T]:
         if isinstance(connection, DatabasePool):
-            connection = connection.pool
+            con = connection.pool
+        else:
+            con = connection
 
-        result: list[Record] = await connection.fetch(compile_query(query))
+        result: list[Record] = await con.fetch(compile_query(query))
 
         if model is None:
             return result
@@ -68,7 +70,7 @@ class Database:
 
     @classmethod
     @overload
-    async def fetch_one[T: BaseModel, Result](
+    async def fetch_one[T: BaseModel](
         cls,
         query: Insert | Select | Update | Delete,
         connection: Connection | DatabasePool,
@@ -79,7 +81,7 @@ class Database:
 
     @classmethod
     @overload
-    async def fetch_one[T: BaseModel, Result](
+    async def fetch_one[Result](
         cls,
         query: Insert | Select | Update | Delete,
         connection: Connection | DatabasePool,
@@ -90,7 +92,7 @@ class Database:
 
     @classmethod
     @overload
-    async def fetch_one[T: BaseModel, Result](
+    async def fetch_one(
         cls,
         query: Insert | Select | Update | Delete,
         connection: Connection | DatabasePool,
@@ -108,9 +110,11 @@ class Database:
         model: type[T] | Callable[[Record], Result] | None = None
     ) -> Record | Result | T | None:
         if isinstance(connection, DatabasePool):
-            connection = connection.pool
+            con = connection.pool
+        else:
+            con = connection
 
-        result: list[Record] = await connection.fetch(compiled_query := compile_query(query))
+        result: list[Record] = await con.fetch(compiled_query := compile_query(query))
 
         if len(result) == 0:
             return None
@@ -133,6 +137,8 @@ class Database:
         connection: Connection | DatabasePool
     ) -> None:
         if isinstance(connection, DatabasePool):
-            connection = connection.pool
+            con = connection.pool
+        else:
+            con = connection
 
-        await connection.execute(compile_query(query))
+        await con.execute(compile_query(query))
