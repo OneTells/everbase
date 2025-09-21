@@ -135,10 +135,7 @@ class Insert(Insert_):
             ...
 
 
-class Select[TP: Columns[Any]](Select_[tuple[TP]]):
-
-    def __init__(self, *entities: TP):
-        super().__init__(*entities)
+class Select(Select_):
 
     @overload
     async def fetch_all[T: BaseModel](
