@@ -50,7 +50,7 @@ class Database:
         return PoolAcquireContextWrapper(pool_acquire_context)
 
     async def release(self, connection: ConnectionWrapper, *, timeout: float | None = None) -> None:
-        await self._pool.release(connection.pool_connection_proxy, timeout=timeout)
+        await self._pool.release(connection.value, timeout=timeout)
 
     async def connect(self) -> None:
         if self._pool is not None:

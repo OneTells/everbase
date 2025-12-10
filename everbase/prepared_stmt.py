@@ -13,7 +13,7 @@ class PreparedStatementWrapper:
         self._prepared_statement = prepared_statement
 
     @property
-    def prepared_statement(self) -> PreparedStatement_:
+    def value(self) -> PreparedStatement_:
         return self._prepared_statement
 
     async def explain(self, args: Iterable[Any], *, analyze: bool = False) -> Any:

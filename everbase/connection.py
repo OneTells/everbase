@@ -16,7 +16,7 @@ class ConnectionWrapper:
         self._connection: PoolConnectionProxy = connection
 
     @property
-    def pool_connection_proxy(self) -> PoolConnectionProxy:
+    def value(self) -> PoolConnectionProxy:
         return self._connection
 
     def transaction(
