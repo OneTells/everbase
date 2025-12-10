@@ -1,11 +1,16 @@
 [project]
 name = "everbase"
-version = "2.5.3"
+version = "3.0.0"
 
 requires-python = ">=3.12,<4.0"
 
 dependencies = [
-    "asyncpg~=0.30",
-    "pydantic~=2.11",
-    "SQLAlchemy~=2.0"
+    "asyncpg>=0.30.0",
+    "pydantic>=2.0.0",
+    "SQLAlchemy>=2.0.0",
+]
+
+[dependency-groups]
+dev = [
+    "asyncpg-stubs>=0.30.0",
 ]

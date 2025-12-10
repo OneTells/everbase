@@ -1,64 +1,40 @@
-from typing import Any, Callable, Iterable, overload, Sequence
+from typing import Any, Callable, Iterable, Literal, overload, Sequence
 
-from asyncpg import create_pool, Pool, Record
+from asyncpg import Record
+from asyncpg.cursor import CursorFactory
+from asyncpg.pool import PoolAcquireContext as PoolAcquireContext_, PoolConnectionProxy
+from asyncpg.prepared_stmt import PreparedStatement
+from asyncpg.transaction import Transaction
 from pydantic import BaseModel
 from sqlalchemy.sql.elements import DQLDMLClauseElement as Query
 
-from everbase.connection import PoolAcquireContext
 from everbase.utils import compile_query, compile_query_without_params, deserialize_record, deserialize_records
 
 
-class Database:
+class Connection:
 
-    def __init__(
+    def __init__(self, connection: PoolConnectionProxy) -> None:
+        self._connection = connection
+
+    def transaction(
         self,
-        dsn: str,
         *,
-        min_size: int = 5,
-        max_size: int = 5,
-        max_queries: int = 50000,
-        max_inactive_connection_lifetime: float = 120,
-        command_timeout: float = 60,
-        record_class: type[Record] = Record,
-        **connect_kwargs
-    ) -> None:
-        self._dsn = dsn
-        self._kwargs = {
-            'min_size': min_size,
-            'max_size': max_size,
-            'max_queries': max_queries,
-            'max_inactive_connection_lifetime': max_inactive_connection_lifetime,
-            'command_timeout': command_timeout,
-            'record_class': record_class,
-            **connect_kwargs
-        }
+        isolation: Literal['read_committed', 'read_uncommitted', 'serializable', 'repeatable_read'] | None = None,
+        readonly: bool = False,
+        deferrable: bool = False
+    ) -> Transaction:
+        return self._connection.transaction(isolation=isolation, readonly=readonly, deferrable=deferrable)
 
-        self._pool: Pool | None = None
-
-    @property
-    def pool(self) -> Pool:
-        if self._pool is None:
-            raise ValueError('Pool is not connected')
-
-        return self._pool
-
-    def acquire(self, *, timeout: float | None = None) -> PoolAcquireContext:
-        if self._pool is None:
-            raise ValueError('Pool is not connected')
-
-        return PoolAcquireContext(self._pool.acquire(timeout=timeout))
-
-    async def connect(self) -> None:
-        if self._pool is not None:
-            return
-
-        self._pool = await create_pool(self._dsn, **self._kwargs)
-
-    async def close(self) -> None:
-        if self._pool is None:
-            return
-
-        await self._pool.close()
+    def cursor(
+        self,
+        query: Query,
+        *,
+        prefetch: int | None = None,
+        timeout: float | None = None,
+        record_class: type[Record] | None = None
+    ) -> CursorFactory:
+        query_str, params = compile_query(query)
+        return self._connection.cursor(query_str, *params, prefetch=prefetch, timeout=timeout, record_class=record_class)
 
     async def execute(
         self,
@@ -67,7 +43,7 @@ class Database:
         timeout: float | None = None
     ) -> str:
         query_str, params = compile_query(query)
-        return await self._pool.execute(query_str, *params, timeout=timeout)
+        return await self._connection.execute(query_str, *params, timeout=timeout)
 
     async def execute_many(
         self,
@@ -77,7 +53,7 @@ class Database:
         timeout: float | None = None,
     ) -> None:
         query_str = compile_query_without_params(query)
-        return await self._pool.executemany(query_str, args, timeout=timeout)
+        return await self._connection.executemany(query_str, args, timeout=timeout)
 
     @overload
     async def fetch(
@@ -121,7 +97,7 @@ class Database:
         model: type[T] | Callable[[Record], Result] | None = None
     ) -> list[Record] | list[Result] | list[T]:
         query_str, params = compile_query(query)
-        response = await self._pool.fetch(query_str, *params, timeout=timeout, record_class=record_class)
+        response = await self._connection.fetch(query_str, *params, timeout=timeout, record_class=record_class)
         return deserialize_records(response, model)
 
     async def fetch_val(
@@ -132,7 +108,7 @@ class Database:
         timeout: float | None = None
     ) -> Any:
         query_str, params = compile_query(query)
-        return await self._pool.fetchval(query_str, *params, column=column, timeout=timeout)
+        return await self._connection.fetchval(query_str, *params, column=column, timeout=timeout)
 
     @overload
     async def fetch_row[TRecord: Record](
@@ -176,7 +152,7 @@ class Database:
         model: type[T] | Callable[[Record], Result] | None = None
     ) -> Record | Result | T | None:
         query_str, params = compile_query(query)
-        response = await self._pool.fetchrow(query_str, *params, timeout=timeout, record_class=record_class)
+        response = await self._connection.fetchrow(query_str, *params, timeout=timeout, record_class=record_class)
         return deserialize_record(response, model)
 
     @overload
@@ -225,5 +201,28 @@ class Database:
         model: type[T] | Callable[[Record], Result] | None = None
     ) -> list[Record] | list[Result] | list[T]:
         query_str = compile_query_without_params(query)
-        response = await self._pool.fetchmany(query_str, args, timeout=timeout, record_class=record_class)
+        response = await self._connection.fetchmany(query_str, args, timeout=timeout, record_class=record_class)
         return deserialize_records(response, model)
+
+    async def prepare(
+        self,
+        query: Query,
+        *,
+        name: str | None = None,
+        timeout: float | None = None,
+        record_class: type[Record] | None = None
+    ) -> PreparedStatement:
+        query_str = compile_query_without_params(query)
+        return await self._connection.prepare(query_str, name=name, timeout=timeout, record_class=record_class)
+
+
+class PoolAcquireContext:
+
+    def __init__(self, context: PoolAcquireContext_) -> None:
+        self._context = context
+
+    async def __aenter__(self) -> Connection:
+        return Connection(await self._context.__aenter__())
+
+    async def __aexit__(self, *exc) -> None:
+        await self._context.__aexit__(*exc)
