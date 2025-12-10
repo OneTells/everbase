@@ -7,7 +7,7 @@ from pydantic import BaseModel
 from everbase.utils import deserialize_record, deserialize_records
 
 
-class PreparedStatement:
+class PreparedStatementWrapper:
 
     def __init__(self, prepared_statement: PreparedStatement_) -> None:
         self._prepared_statement = prepared_statement
@@ -180,7 +180,7 @@ class PreparedStatement:
         timeout: float | None = None,
         model: type[T] | Callable[[Record], Result] | None = None
     ) -> list[Record] | list[Result] | list[T]:
-        response = await self._prepared_statement.fetchmany(args, timeout=timeout)  # type: ignore
+        response = await self._prepared_statement.fetchmany(args, timeout=timeout)
         return deserialize_records(response, model)
 
     async def execute_many(self, args: Iterable[Any], *, timeout: float | None = None) -> None:

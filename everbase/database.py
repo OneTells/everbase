@@ -5,7 +5,7 @@ from typing import Any, Generator, Self
 from asyncpg import create_pool, Record
 from asyncpg.pool import Pool as Pool_, PoolAcquireContext as PoolAcquireContext_
 
-from everbase.connection import Connection
+from everbase.connection import ConnectionWrapper
 
 
 class Database:
@@ -42,14 +42,14 @@ class Database:
 
         return self._pool
 
-    def acquire(self, *, timeout: float | None = None) -> PoolAcquireContext:
+    def acquire(self, *, timeout: float | None = None) -> PoolAcquireContextWrapper:
         if self._pool is None:
             raise ValueError('Pool is not connected')
 
         pool_acquire_context = self._pool.acquire(timeout=timeout)
-        return PoolAcquireContext(pool_acquire_context)
+        return PoolAcquireContextWrapper(pool_acquire_context)
 
-    async def release(self, connection: Connection, *, timeout: float | None = None) -> None:
+    async def release(self, connection: ConnectionWrapper, *, timeout: float | None = None) -> None:
         await self._pool.release(connection.pool_connection_proxy, timeout=timeout)
 
     async def connect(self) -> None:
@@ -72,18 +72,18 @@ class Database:
         await self.close()
 
 
-class PoolAcquireContext:
+class PoolAcquireContextWrapper:
 
     def __init__(self, pool_acquire_context: PoolAcquireContext_) -> None:
         self._pool_acquire_context = pool_acquire_context
 
-    async def __aenter__(self) -> Connection:
+    async def __aenter__(self) -> ConnectionWrapper:
         connection = await self._pool_acquire_context.__aenter__()
-        return Connection(connection)
+        return ConnectionWrapper(connection)
 
     async def __aexit__(self, *exc: Any) -> None:
         await self._pool_acquire_context.__aexit__(*exc)
 
-    def __await__(self) -> Generator[Any, None, Connection]:
+    def __await__(self) -> Generator[Any, None, ConnectionWrapper]:
         connection = yield from self._pool_acquire_context.__await__()
-        return Connection(connection)
+        return ConnectionWrapper(connection)

@@ -6,11 +6,11 @@ from asyncpg.transaction import Transaction
 from pydantic import BaseModel
 from sqlalchemy.sql.elements import DQLDMLClauseElement as Query
 
-from everbase.prepared_stmt import PreparedStatement
+from everbase.prepared_stmt import PreparedStatementWrapper
 from everbase.utils import compile_query, compile_query_without_params, deserialize_record, deserialize_records
 
 
-class Connection:
+class ConnectionWrapper:
 
     def __init__(self, connection: PoolConnectionProxy) -> None:
         self._connection: PoolConnectionProxy = connection
@@ -53,10 +53,10 @@ class Connection:
         *,
         name: str | None = None,
         timeout: float | None = None
-    ) -> PreparedStatement:
+    ) -> PreparedStatementWrapper:
         query_str = compile_query_without_params(query)
         prepared_statement = await self._connection.prepare(query_str, name=name, timeout=timeout)
-        return PreparedStatement(prepared_statement)
+        return PreparedStatementWrapper(prepared_statement)
 
     @overload
     async def fetch[T: BaseModel](
