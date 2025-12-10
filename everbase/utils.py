@@ -23,7 +23,7 @@ def compile_query(query: Query) -> tuple[str, tuple[Any, ...]]:
 
 def deserialize_records[T: BaseModel, Result](
     records: list[Record],
-    model: type[T] | Callable[[Record], Result] | None = None
+    model: type[T] | Callable[[Record], Result] | None
 ) -> list[Record] | list[Result] | list[T]:
     if model is None:
         return records
@@ -35,13 +35,13 @@ def deserialize_records[T: BaseModel, Result](
 
 
 def deserialize_record[T: BaseModel, Result](
-    records: Record,
-    model: type[T] | Callable[[Record], Result] | None = None
+    record: Record,
+    model: type[T] | Callable[[Record], Result] | None
 ) -> Record | Result | T:
     if model is None:
-        return records
+        return record
 
     if isclass(model) and issubclass(model, BaseModel):
-        return model(**records)
+        return model(**record)
 
-    return model(records)
+    return model(record)

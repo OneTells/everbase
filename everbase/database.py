@@ -1,11 +1,11 @@
-from typing import Any, Callable, Iterable, overload, Sequence
+from __future__ import annotations
 
-from asyncpg import create_pool, Pool, Record
-from pydantic import BaseModel
-from sqlalchemy.sql.elements import DQLDMLClauseElement as Query
+from typing import Any, Generator, Self
 
-from everbase.connection import PoolAcquireContext
-from everbase.utils import compile_query, compile_query_without_params, deserialize_record, deserialize_records
+from asyncpg import create_pool, Record
+from asyncpg.pool import Pool as Pool_, PoolAcquireContext as PoolAcquireContext_
+
+from everbase.connection import Connection
 
 
 class Database:
@@ -33,10 +33,10 @@ class Database:
             **connect_kwargs
         }
 
-        self._pool: Pool | None = None
+        self._pool: Pool_ | None = None
 
     @property
-    def pool(self) -> Pool:
+    def pool(self) -> Pool_:
         if self._pool is None:
             raise ValueError('Pool is not connected')
 
@@ -46,7 +46,11 @@ class Database:
         if self._pool is None:
             raise ValueError('Pool is not connected')
 
-        return PoolAcquireContext(self._pool.acquire(timeout=timeout))
+        pool_acquire_context = self._pool.acquire(timeout=timeout)
+        return PoolAcquireContext(pool_acquire_context)
+
+    async def release(self, connection: Connection, *, timeout: float | None = None) -> None:
+        await self._pool.release(connection.pool_connection_proxy, timeout=timeout)
 
     async def connect(self) -> None:
         if self._pool is not None:
@@ -60,170 +64,26 @@ class Database:
 
         await self._pool.close()
 
-    async def execute(
-        self,
-        query: Query,
-        *,
-        timeout: float | None = None
-    ) -> str:
-        query_str, params = compile_query(query)
-        return await self._pool.execute(query_str, *params, timeout=timeout)
+    async def __aenter__(self) -> Self:
+        await self.connect()
+        return self
 
-    async def execute_many(
-        self,
-        query: Query,
-        args: Iterable[Sequence[Any]],
-        *,
-        timeout: float | None = None,
-    ) -> None:
-        query_str = compile_query_without_params(query)
-        return await self._pool.executemany(query_str, args, timeout=timeout)
+    async def __aexit__(self, *exc: Any) -> None:
+        await self.close()
 
-    @overload
-    async def fetch(
-        self,
-        query: Query,
-        *,
-        timeout: float | None = None,
-        record_class: type[Record] | None = None,
-        model: None = None
-    ) -> list[Record]:
-        ...
 
-    @overload
-    async def fetch[T: BaseModel](
-        self,
-        query: Query,
-        *,
-        timeout: float | None = None,
-        record_class: type[Record] | None = None,
-        model: type[T]
-    ) -> list[T]:
-        ...
+class PoolAcquireContext:
 
-    @overload
-    async def fetch[Result](
-        self,
-        query: Query,
-        *,
-        timeout: float | None = None,
-        record_class: type[Record] | None = None,
-        model: Callable[[Record], Result]
-    ) -> list[Result]:
-        ...
+    def __init__(self, pool_acquire_context: PoolAcquireContext_) -> None:
+        self._pool_acquire_context = pool_acquire_context
 
-    async def fetch[T: BaseModel, Result](
-        self,
-        query: Query,
-        *,
-        timeout: float | None = None,
-        record_class: type[Record] | None = None,
-        model: type[T] | Callable[[Record], Result] | None = None
-    ) -> list[Record] | list[Result] | list[T]:
-        query_str, params = compile_query(query)
-        response = await self._pool.fetch(query_str, *params, timeout=timeout, record_class=record_class)
-        return deserialize_records(response, model)
+    async def __aenter__(self) -> Connection:
+        connection = await self._pool_acquire_context.__aenter__()
+        return Connection(connection)
 
-    async def fetch_val(
-        self,
-        query: Query,
-        *,
-        column: int = 0,
-        timeout: float | None = None
-    ) -> Any:
-        query_str, params = compile_query(query)
-        return await self._pool.fetchval(query_str, *params, column=column, timeout=timeout)
+    async def __aexit__(self, *exc: Any) -> None:
+        await self._pool_acquire_context.__aexit__(*exc)
 
-    @overload
-    async def fetch_row[TRecord: Record](
-        self,
-        query: Query,
-        *,
-        timeout: float | None = None,
-        record_class: type[TRecord] | None = None,
-        model: None = None
-    ) -> list[TRecord]:
-        ...
-
-    @overload
-    async def fetch_row[T: BaseModel](
-        self,
-        query: Query,
-        *,
-        timeout: float | None = None,
-        record_class: type[Record] | None = None,
-        model: type[T]
-    ) -> list[T]:
-        ...
-
-    @overload
-    async def fetch_row[Result](
-        self,
-        query: Query,
-        *,
-        timeout: float | None = None,
-        record_class: type[Record] | None = None,
-        model: Callable[[Record], Result]
-    ) -> list[Result]:
-        ...
-
-    async def fetch_row[T: BaseModel, Result](
-        self,
-        query: Query,
-        *,
-        timeout: float | None = None,
-        record_class: type[Record] | None = None,
-        model: type[T] | Callable[[Record], Result] | None = None
-    ) -> Record | Result | T | None:
-        query_str, params = compile_query(query)
-        response = await self._pool.fetchrow(query_str, *params, timeout=timeout, record_class=record_class)
-        return deserialize_record(response, model)
-
-    @overload
-    async def fetch_many[TRecord: Record](
-        self,
-        query: Query,
-        args: Iterable[Sequence[Any]],
-        *,
-        timeout: float | None = None,
-        record_class: type[TRecord] | None = None,
-        model: None = None
-    ) -> list[TRecord]:
-        ...
-
-    @overload
-    async def fetch_many[T: BaseModel](
-        self,
-        query: Query,
-        args: Iterable[Sequence[Any]],
-        *,
-        timeout: float | None = None,
-        record_class: type[Record] | None = None,
-        model: type[T]
-    ) -> list[T]:
-        ...
-
-    @overload
-    async def fetch_many[Result](
-        self,
-        query: Query,
-        args: Iterable[Sequence[Any]],
-        *,
-        timeout: float | None = None,
-        record_class: type[Record] | None = None,
-        model: Callable[[Record], Result]
-    ) -> list[Result]:
-        ...
-
-    async def fetch_many[T: BaseModel, Result](
-        self,
-        query: Query,
-        args: Iterable[Sequence[Any]],
-        *,
-        timeout: float | None = None,
-        record_class: type[Record] | None = None,
-        model: type[T] | Callable[[Record], Result] | None = None
-    ) -> list[Record] | list[Result] | list[T]:
-        query_str = compile_query_without_params(query)
-        response = await self._pool.fetchmany(query_str, args, timeout=timeout, record_class=record_class)
-        return deserialize_records(response, model)
+    def __await__(self) -> Generator[Any, None, Connection]:
+        connection = yield from self._pool_acquire_context.__await__()
+        return Connection(connection)
